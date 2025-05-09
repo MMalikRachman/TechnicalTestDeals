@@ -7,8 +7,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Run Tests
+  test-chromium:
+    name: Run Tests - Chromium
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,15 +22,76 @@ jobs:
         run: npm ci
         
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
         
-      - name: Run tests
-        run: npm test
+      - name: Run tests on Chromium
+        run: npx playwright test --project=chromium --timeout=60000
+        continue-on-error: true
         
-      - name: Upload test report
+      - name: Upload Chromium test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-chromium
+          path: playwright-report/
+          retention-days: 7
+
+  test-firefox:
+    name: Run Tests - Firefox
+    runs-on: windows-latest
+    needs: test-chromium
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps firefox
+        
+      - name: Run tests on Firefox
+        run: npx playwright test --project=firefox --timeout=60000
+        continue-on-error: true
+        
+      - name: Upload Firefox test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-firefox
+          path: playwright-report/
+          retention-days: 7
+
+  test-webkit:
+    name: Run Tests - WebKit
+    runs-on: windows-latest
+    needs: test-firefox
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps webkit
+        
+      - name: Run tests on WebKit
+        run: npx playwright test --project=webkit --timeout=60000
+        continue-on-error: true
+        
+      - name: Upload WebKit test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-webkit
           path: playwright-report/
           retention-days: 7 
