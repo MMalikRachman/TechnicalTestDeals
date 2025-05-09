@@ -35,7 +35,9 @@ test.describe('Mentor Search', () => {
     
     await searchBox.click();
     await searchBox.fill(invalidMentorName);
+    await page.waitForTimeout(2000);
     await searchBox.press('Enter');
+    await page.waitForTimeout(2000);
     //verify error message is visible
     await expect(page.getByText('Tidak ada hasil pencarian ditemukanCoba cari kata kunci lain, sementara itu')).toBeVisible();
   });
